@@ -1,7 +1,7 @@
 resource "google_sql_database_instance" "sqlserver_instance" {
   name             = var.name
   database_version = var.database_version
-  # It verifies whether the region input is a valid GCP region. If not, it defaults to us-central.
+  # It verifies whether the region input is a valid GCP region. If not, it defaults to europe-west2.
   region = contains(data.google_compute_regions.available.names, var.cloud_sql_region) == true ? var.cloud_sql_region : data.google_compute_regions.available.names[17]
 
   master_instance_name = var.master_instance_name

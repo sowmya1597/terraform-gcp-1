@@ -8,7 +8,7 @@ This module is intended to easily create an App Engine application using Terrafo
 module "appengine_app" {
   source = "git::https://github.com/bhidalto/terraform-appengine/modules/app"
   project     = "my-project-id"
-  location_id = "us-central"
+  location_id = "europe-west2"
 }
 ```
 

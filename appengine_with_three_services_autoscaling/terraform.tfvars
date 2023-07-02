@@ -1,6 +1,6 @@
 # Variables for App Engine application
 project       = "terraform-demo1-391612"
-location_id   = "us-central"
+location_id   = "europe-west2"
 
 # ===== Variables for App Engine AppService ===== #
 app_service_version             = "default-v1"
@@ -96,7 +96,7 @@ database_name = "terraform-db"
 # Variables for SVPC connector
 svpc_connector_name = "sqlserver-svpc-connector"
 ip_cidr_range       = "10.0.8.0/28"
-region              = "us-central"
+region              = "europe-west2"
 min_throughput      = 200
 max_throughput      = 300
 
