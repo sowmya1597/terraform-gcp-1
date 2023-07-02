@@ -45,7 +45,7 @@ output "iap" {
 
 output "iap_enabled" {
   description = "(Optional) Whether the serving infrastructure will authenticate and authorize all incoming requests. (default is false)"
-  value       = length(google_app_engine_application.appengine_app.iap) != 0 ? google_app_engine_application.appengine_app.iap[0] : false 
+  value       = length(google_app_engine_application.appengine_app.iap) != 0 ? true : false 
 }
 
 output "iap_oauth2_client_secret_sha256" {

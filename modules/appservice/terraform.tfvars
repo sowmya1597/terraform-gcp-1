@@ -1,5 +1,5 @@
 # Variables for App Engine application
-location_id   = "us-central1"
+location_id   = "us-central"
 
 # Variables for Standard Module
 service_version = "py1234"

@@ -37,7 +37,7 @@ output "gcr_domain" {
   description = "The GCR domain used for storing managed Docker images for this app."
   value       = module.appengine_app.gcr_domain
 }
-
+/*
 output "iap" {
   description = "Settings for enabling Cloud Identity Aware Proxy."
   value       = module.appengine_app.iap
@@ -52,7 +52,7 @@ output "iap_oauth2_client_secret_sha256" {
   description = "Hex-encoded SHA-256 hash of the client secret."
   value       = length(module.appengine_app.iap) != 0 ? module.appengine_app.iap[1] : "IAP is not enabled for this app."
 }
-
+*/
 
 
 #Outputs for Cloud SQL sqlserver instance

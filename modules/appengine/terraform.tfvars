@@ -1,2 +1,2 @@
 # Variables for App Engine application
-location_id   = "us-central1"
+location_id   = "us-central"

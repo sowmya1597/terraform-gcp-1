@@ -20,9 +20,9 @@ variable "name" {
 }
 
 variable "region" {
-  description = "(Required; Default: us-central1) Region where the VPC Access connector resides."
+  description = "(Required; Default: us-central) Region where the VPC Access connector resides."
   type        = string
-  default     = "us-central1"
+  default     = "us-central"
 }
 
 variable "ip_cidr_range" {
