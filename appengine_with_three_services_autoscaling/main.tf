@@ -120,22 +120,3 @@ module "svpc_connector" {
   min_throughput = var.min_throughput
   max_throughput = var.max_throughput
 }
-
-# ==== App Engine Standard Automatic Scaling ==== #
-
-module "appengine_standard_automatic_scaling" {
-  depends_on        = [module.private_sqlserver_instance, module.svpc_connector, module.cloud_sql_database]
-  source            = "../modules/compute/standard/automatic_scaling/"
-  service_version   = var.service_version
-  service           = var.service
-  runtime           = var.runtime
-  threadsafe        = var.threadsafe
-  env_variables     = { CLOUD_SQL_CONNECTION_NAME : module.private_sqlserver_instance.connection_name, DB_USER : var.sql_user_name, DB_PASS : var.sql_user_password, DB_NAME : var.database_name }
-  instance_class    = var.instance_class
-  zip               = var.zip
-  entrypoint        = var.entrypoint
-  automatic_scaling = var.automatic_scaling
-  vpc_access_connector = {
-    name = module.svpc_connector.id
-  }
-}

@@ -1,5 +1,4 @@
 resource "google_app_engine_standard_app_version" "webserver" {
-  project                   = var.project
   version_id                = var.service_version
   service                   = var.service
   runtime                   = var.runtime

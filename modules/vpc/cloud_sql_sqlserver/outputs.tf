@@ -11,7 +11,7 @@ output "connection_name" {
 
 output "public_ip_address" {
   description = "Represents the public IPv4 address assigned to the Cloud SQL instance. "
-  value       = google_sql_database_instance.sqlserver_instance.public_ip_address == "" ? null : google_sql_database_instance.sqlservre_instance.public_ip_address
+  value       = google_sql_database_instance.sqlserver_instance.public_ip_address == "" ? null : google_sql_database_instance.sqlserver_instance.public_ip_address
 }
 
 output "private_ip_address" {
