@@ -1,5 +1,5 @@
 # Variables for App Engine application
-project       = "terraform-demo1"
+project       = "terraform-demo1-391612"
 location_id   = "us-central"
 
 # ===== Variables for App Engine AppService ===== #
