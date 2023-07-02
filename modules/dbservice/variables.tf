@@ -1,4 +1,4 @@
-variable "service_version" {
+variable "db_service_version" {
   description = "(Optional) Name of the App Engine version of the Service that will be deployed."
   type        = string
   default     = null

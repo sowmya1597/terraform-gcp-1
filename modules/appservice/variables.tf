@@ -1,4 +1,4 @@
-variable "service_version" {
+variable "app_service_version" {
   description = "(Optional) Name of the App Engine version of the Service that will be deployed."
   type        = string
   default     = null
@@ -37,7 +37,7 @@ variable "threadsafe" {
   default     = true
 }
 
-variable "api_version" {
+variable "runtime_api_version" {
   description = "(Optional)The version of the API in the given runtime environment that is used by your app. The field is deprecated for newer App Engine runtimes."
   type        = number
   default     = null
