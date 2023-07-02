@@ -102,13 +102,3 @@ output "svpc_connector_self_link" {
   value = module.svpc_connector.self_link
 }
 
-# Outputs for GAE module
-output "gae_id" {
-  description = "An identifier for the resource with format apps/{{project}}/services/{{service}}/versions/{{version_id}}"
-  value       = module.appengine_standard_automatic_scaling.id
-}
-
-output "gae_name" {
-  description = "Full path to the Version resource in the API. Example, `v1`."
-  value       = module.appengine_standard_automatic_scaling.name
-}
