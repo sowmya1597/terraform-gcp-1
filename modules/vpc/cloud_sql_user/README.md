@@ -28,7 +28,7 @@ Module Input Variables
 
 - `sql_user_password`: (`Required`)(`string`) The password for the Cloud SQL user.
 
- ***Note: For Cloud SQL PostgreSQL instances, the password must be a value. It cannot be empty.***
+ ***Note: For Cloud SQL sqlserverSQL instances, the password must be a value. It cannot be empty.***
 
    
 

@@ -55,28 +55,28 @@ output "iap_oauth2_client_secret_sha256" {
 
 
 
-#Outputs for Cloud SQL Postgres instance
+#Outputs for Cloud SQL sqlserver instance
 output "self_link" {
   description = "A self link of the newly created Cloud SQL instance."
-  value       = module.private_postgres_instance.self_link
+  value       = module.private_sqlserver_instance.self_link
 }
 
-output "postgres_connection_name" {
+output "sqlserver_connection_name" {
   description = "The connection name for the Cloud SQL instance created. It has the following format: `[PROJECT_ID]:[REGION]:[INSTANCE_NAME]` "
-  value       = module.private_postgres_instance.connection_name
+  value       = module.private_sqlserver_instance.connection_name
 }
 
-output "postgres_private_ip_address" {
+output "sqlserver_private_ip_address" {
   description = "The private IPv4 address assigned to the Cloud SQL instance created."
-  value       = module.private_postgres_instance.private_ip_address
+  value       = module.private_sqlserver_instance.private_ip_address
 }
 
-output "postgres_name" {
+output "sqlserver_name" {
   description = "Name of the Cloud SQL instance. "
-  value       = module.private_postgres_instance.name
+  value       = module.private_sqlserver_instance.name
 }
 
-#Outputs for Cloud SQL Postgres Database
+#Outputs for Cloud SQL sqlserver Database
 
 output "cloudsql_db_id" {
   description = "An identifier for the resource with format projects/{{project}}/instances/{{instance}}/databases/{{name}}"

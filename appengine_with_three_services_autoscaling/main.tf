@@ -26,7 +26,6 @@ module "app_service" {
   instance_class    = var.app_service_instance_class
   zip               = var.app_service_zip
   handlers          = var.app_service_handlers
-  instances         = var.app_service_instances
   automatic_scaling = var.automatic_scaling
 }
 
@@ -39,14 +38,13 @@ module "web_service" {
   instance_class    = var.web_service_instance_class
   zip               = var.web_service_zip
   handlers          = var.web_service_handlers
-  instances         = var.web_service_instances
   automatic_scaling = var.automatic_scaling
 }
 
 # ==== VPC network definition ==== #
 
 module "vpc_network" {
-  source           = "./../modules/vpc/vpc_network"
+  source           = "../modules/vpc/vpc_network"
   vpc_network_name = var.vpc_network_name
   vpc_description  = "VPC network created to house the CSQL instance private IP."
   routing_mode     = var.routing_mode
@@ -105,7 +103,7 @@ module "cloud_sql_database" {
   depends_on    = [module.private_sqlserver_instance]
   source        = "../modules/vpc/cloud_sql_database"
   database_name = var.database_name
-  instance_name = module.private_postgres_instance.name
+  instance_name = module.private_sqlserver_instance.name
 }
 
 # ==== Serverless VPC connector ==== #
