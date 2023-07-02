@@ -38,13 +38,13 @@ resource "google_app_engine_standard_app_version" "webserver" {
       auth_fail_action            = var.handlers[handlers.key]["auth_fail_action"]
       redirect_http_response_code = var.handlers[handlers.key]["redirect_http_response_code"]
       dynamic "script" {
-        for_each = handlers.value.script == null ? [] : list(handlers.value.script)
+        for_each = handlers.value.script == null ? [] : [handlers.value.script]
         content {
           script_path = script.value.script_path
         }
       }
       dynamic "static_files" {
-        for_each = handlers.value.static_files == null ? [] : list(handlers.value.static_files)
+        for_each = handlers.value.static_files == null ? [] : [handlers.value.static_files]
         content {
           path                  = static_files.value.path
           upload_path_regex     = static_files.value.upload_path_regex
