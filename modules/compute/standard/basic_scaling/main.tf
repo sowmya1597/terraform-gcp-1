@@ -1,10 +1,9 @@
-resource "google_app_engine_standard_app_version" "webserver" {
-  project                   = var.project
+resource "google_app_engine_standard_app_version" "appengine_standard_basic_scaling" {
   version_id                = var.service_version
   service                   = var.service
   runtime                   = var.runtime
   threadsafe                = var.threadsafe
-  runtime_api_version       = var.runtime_api_version
+  runtime_api_version       = var.api_version
   env_variables             = var.env_variables
   noop_on_destroy           = var.noop_on_destroy
   delete_service_on_destroy = var.delete_service_on_destroy
@@ -75,27 +74,9 @@ resource "google_app_engine_standard_app_version" "webserver" {
     }
   }
 
-  dynamic "automatic_scaling" {
-    # The [*] here will test if the variable value is set. If so, it'll
-    # produce a single-element list. If not (if it's null), it'll produce
-    # an empty list.
-    for_each = var.automatic_scaling[*]
-    content {
-      max_concurrent_requests = automatic_scaling.value.max_concurrent_requests
-      max_idle_instances      = automatic_scaling.value.max_idle_instances
-      max_pending_latency     = automatic_scaling.value.max_pending_latency
-      min_idle_instances      = automatic_scaling.value.min_idle_instances
-      min_pending_latency     = automatic_scaling.value.min_pending_latency
-      dynamic "standard_scheduler_settings" {
-        for_each = automatic_scaling.value.standard_scheduler_settings[*]
-        content {
-          target_cpu_utilization        = standard_scheduler_settings.value.target_cpu_utilization
-          target_throughput_utilization = standard_scheduler_settings.value.target_throughput_utilization
-          min_instances                 = standard_scheduler_settings.value.min_instances
-          max_instances                 = standard_scheduler_settings.value.max_instances
-        }
-      }
-    }
+  basic_scaling {
+    idle_timeout  = var.idle_timeout
+    max_instances = var.max_instances
   }
 
   dynamic "vpc_access_connector" {

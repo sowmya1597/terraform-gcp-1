@@ -1,107 +1,96 @@
-resource "google_app_engine_standard_app_version" "dbserver" {
-  project                   = var.project
-  version_id                = var.db_service_version
-  service                   = var.service
-  runtime                   = var.runtime
-  threadsafe                = var.threadsafe
-  runtime_api_version       = var.api_version
-  env_variables             = var.env_variables
-  noop_on_destroy           = var.noop_on_destroy
-  delete_service_on_destroy = var.delete_service_on_destroy
-  inbound_services          = var.inbound_services
-  instance_class            = var.instance_class
-  deployment {
-    dynamic "zip" {
-    # The [*] here will test if the variable value is set. If so, it'll
-    # produce a single-element list. If not (if it's null), it'll produce
-    # an empty list.
-      for_each = var.zip[*]
-      content {
-        source_url  = zip.value.source_url
-        files_count = zip.value.files_count
-      }
-    }
-    dynamic "files" {
-      for_each = var.files == null ? [] : list(var.files)
-      content {
-        name       = var.files[files.key]["name"]
-        sha1_sum   = var.files[files.key]["sha1_sum"]
-        source_url = var.files[files.key]["source_url"]
-      }
-    }
-  }
-  dynamic "handlers" {
-    for_each = var.handlers == null ? [] : var.handlers
-    content {
-      url_regex                   = var.handlers[handlers.key]["url_regex"]
-      security_level              = var.handlers[handlers.key]["security_level"]
-      login                       = var.handlers[handlers.key]["login"]
-      auth_fail_action            = var.handlers[handlers.key]["auth_fail_action"]
-      redirect_http_response_code = var.handlers[handlers.key]["redirect_http_response_code"]
-      dynamic "script" {
-        for_each = handlers.value.script == null ? [] : [handlers.value.script]
-        content {
-          script_path = script.value.script_path
-        }
-      }
-      dynamic "static_files" {
-        for_each = handlers.value.static_files == null ? [] : [handlers.value.static_files]
-        content {
-          path                  = static_files.value.path
-          upload_path_regex     = static_files.value.upload_path_regex
-          http_headers          = static_files.value.http_headers
-          mime_type             = static_files.value.mime_type
-          expiration            = static_files.value.expiration
-          require_matching_file = static_files.value.require_matching_file
-          application_readable  = static_files.value.application_readable
-        }
-      }
-    }
-  }
-  dynamic "libraries" {
-    for_each = var.libraries == null ? [] : var.libraries
-    content {
-      name    = var.libraries[libraries.key]["name"]
-      version = var.libraries[libraries.key]["version"]
-    }
-  }
-  dynamic "entrypoint" {
-    # The [*] here will test if the variable value is set. If so, it'll
-    # produce a single-element list. If not (if it's null), it'll produce
-    # an empty list.
-    for_each = var.entrypoint[*]
-    content {
-      shell = entrypoint.value.shell
-    }
-  }
+# ==== VPC network definition ==== #
 
-  dynamic "automatic_scaling" {
-    # The [*] here will test if the variable value is set. If so, it'll
-    # produce a single-element list. If not (if it's null), it'll produce
-    # an empty list.
-    for_each = var.automatic_scaling[*]
-    content {
-      max_concurrent_requests = automatic_scaling.value.max_concurrent_requests
-      max_idle_instances      = automatic_scaling.value.max_idle_instances
-      max_pending_latency     = automatic_scaling.value.max_pending_latency
-      min_idle_instances      = automatic_scaling.value.min_idle_instances
-      min_pending_latency     = automatic_scaling.value.min_pending_latency
-      dynamic "standard_scheduler_settings" {
-        for_each = automatic_scaling.value.standard_scheduler_settings[*]
-        content {
-          target_cpu_utilization        = standard_scheduler_settings.value.target_cpu_utilization
-          target_throughput_utilization = standard_scheduler_settings.value.target_throughput_utilization
-          min_instances                 = standard_scheduler_settings.value.min_instances
-          max_instances                 = standard_scheduler_settings.value.max_instances
-        }
-      }
-    }
-  }
+module "vpc_network" {
+  source           = "./modules/vpc/vpc_network"
+  vpc_network_name = var.vpc_network_name
+  vpc_description  = "VPC network created to house the CSQL instance private IP."
+  routing_mode     = var.routing_mode
+}
 
-  dynamic "vpc_access_connector" {
-    for_each = var.vpc_access_connector[*]
-    content {
-      name = vpc_access_connector.value.name
-    }
+# ==== Allocated IP range definition ==== #
+
+module "allocated_ip_address_range" {
+  source                    = "../modules/vpc/allocated_ip_address_range"
+  name                      = var.allocated_ip_address_range_name
+  description               = "Allocation for the Cloud SQL instance."
+  prefix_length             = var.prefix_length
+  address_type              = "INTERNAL"
+  purpose                   = "VPC_PEERING"
+  associated_vpc_network_id = module.vpc_network.vpc_network_id
+
+}
+
+module "private_connection" {
+  source                      = "../modules/vpc/private_connection"
+  associated_vpc_network_id   = module.vpc_network.vpc_network_id
+  allocated_ip_address_ranges = [module.allocated_ip_address_range.name]
+}
+
+module "private_sqlserver_instance" {
+
+  # This is needed as we need to first peer with the service producer before assigning a private IP address with Cloud SQL.
+  depends_on = [module.private_connection]
+
+  source = "../modules/vpc/cloud_sql_sqlserver"
+  name             = var.instance_name
+  database_version = var.sqlserver_version
+  cloud_sql_region = var.sql_region
+  # We are disabling the Public IP from the Cloud SQL instance as
+  # we only want to access it through private IP address.
+  ipv4_enabled   = false
+  vpc_network_id = module.vpc_network.vpc_network_id
+
+}
+
+# Second-generation instances include a default 'root'@'%' user with no password. 
+#This user will be deleted by Terraform on instance creation. 
+# Therefore, we will create a google_sql_user to define a custom user with a restricted host and strong password.
+
+module "cloud_sql_user" {
+  source = "../modules/vpc/cloud_sql_user"
+
+  sql_user_name           = var.sql_user_name
+  cloud_sql_instance_name = module.private_sqlserver_instance.name
+  sql_user_password       = var.sql_user_password
+}
+
+# ==== Cloud SQL Database ==== #
+
+module "cloud_sql_database" {
+  depends_on    = [module.private_sqlserver_instance]
+  source        = "../modules/vpc/cloud_sql_database"
+  database_name = var.database_name
+  instance_name = module.private_postgres_instance.name
+}
+
+# ==== Serverless VPC connector ==== #
+
+module "svpc_connector" {
+  depends_on     = [module.private_connection]
+  source         = "../modules/vpc/serverless_vpc_connector"
+  name           = var.svpc_connector_name
+  network        = var.vpc_network_name
+  ip_cidr_range  = var.ip_cidr_range
+  region         = var.region
+  min_throughput = var.min_throughput
+  max_throughput = var.max_throughput
+}
+
+# ==== App Engine Standard Automatic Scaling ==== #
+
+module "appengine_standard_automatic_scaling" {
+  depends_on        = [module.private_sqlserver_instance, module.svpc_connector, module.cloud_sql_database]
+  source            = "../modules/compute/standard/automatic_scaling/"
+  service_version   = var.service_version
+  service           = var.service
+  runtime           = var.runtime
+  threadsafe        = var.threadsafe
+  env_variables     = { CLOUD_SQL_CONNECTION_NAME : module.private_sqlserver_instance.connection_name, DB_USER : var.sql_user_name, DB_PASS : var.sql_user_password, DB_NAME : var.database_name }
+  instance_class    = var.instance_class
+  zip               = var.zip
+  entrypoint        = var.entrypoint
+  automatic_scaling = var.automatic_scaling
+  vpc_access_connector = {
+    name = module.svpc_connector.id
   }
 }

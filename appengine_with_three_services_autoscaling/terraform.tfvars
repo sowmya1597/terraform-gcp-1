@@ -1,21 +1,17 @@
 # Variables for App Engine application
-location_id   = "europe-west2"
+project       = "Demo-project-usecase"
+location_id   = "us-central1"
 
-# Variables for Standard Module
-service_version = "py1234"
-service         = "terraform-py27"
-runtime         = "python27"
-threadsafe      = true
-instance_class  = "F1"
-
-# Variables for Zip Module
-zip = {
-  source_url  = "https://storage.googleapis.com/$MY_BUCKET/gae-helloworld.zip"
+# ===== Variables for App Engine AppService ===== #
+app_service_version             = "default-v1"
+app_service_runtime             = "python27"
+app_service_threadsafe          = true
+app_service_instance_class      = "B1"
+app_service_zip = {
+  source_url  = "https://storage.googleapis.com/$MY_BUCKET/helloworld-v1.zip"
   files_count = null
 }
-
-# Variables for Handlers block
-handlers = [{
+app_service_handlers = [{
   url_regex                   = "/.*",
   security_level              = null,
   login                       = null,
@@ -26,6 +22,55 @@ handlers = [{
   }
   static_files = null
 }]
+app_service_instances = 2
+# ===== /Variables for App Engine AppService ===== #
+
+
+# ===== Variables for App Engine WebService ===== #
+web_service_version         = "default-v2"
+web_service_runtime         = "python27"
+web_service_threadsafe      = true
+web_service_instance_class  = "B1"
+web_service_zip = {
+  source_url  = "https://storage.googleapis.com/$MY_BUCKET/helloworld-v2.zip"
+  files_count = null
+}
+web_service_handlers = [{
+  url_regex                   = "/.*",
+  security_level              = null,
+  login                       = null,
+  auth_fail_action            = null,
+  redirect_http_response_code = null,
+  script = {
+    script_path = "main.app"
+  }
+  static_files = null
+}]
+web_service_instances = 3
+# ===== /Variables for App Engine WebService ===== #
+
+# ===== Variables for App Engine DBService ===== #
+db_service_version         = "default-v2"
+db_service_runtime         = "python27"
+db_service_threadsafe      = true
+db_service_instance_class  = "B1"
+db_service_zip = {
+  source_url  = "https://storage.googleapis.com/$MY_BUCKET/helloworld-v2.zip"
+  files_count = null
+}
+db_service_handlers = [{
+  url_regex                   = "/.*",
+  security_level              = null,
+  login                       = null,
+  auth_fail_action            = null,
+  redirect_http_response_code = null,
+  script = {
+    script_path = "main.app"
+  }
+  static_files = null
+}]
+db_service_instances = 3
+# ===== /Variables for App Engine DBService ===== #
 
 # Variables for Automatic Scaling module
 automatic_scaling = {
@@ -37,57 +82,7 @@ automatic_scaling = {
   standard_scheduler_settings = {
     target_cpu_utilization        = 0.6,
     target_throughput_utilization = 0.6,
-    min_instances                 = 0,
-    max_instances                 = 1
+    min_instances                 = 1,
+    max_instances                 = 3
   }
 }
-handlers_v1 = [{
-  url_regex                   = "/.*",
-  security_level              = null,
-  login                       = null,
-  auth_fail_action            = null,
-  redirect_http_response_code = null,
-  script = {
-    script_path = "main.app"
-  }
-  static_files = null
-}]
-instances_v1 = 2
-# ===== /Variables for App Engine Service V1 ===== #
-
-
-# ===== Variables for App Engine Service V2 ===== #
-service_version_v2 = "default-v2"
-runtime_v2         = "python27"
-threadsafe_v2      = true
-instance_class_v2  = "B1"
-zip_v2 = {
-  source_url  = "https://storage.googleapis.com/$MY_BUCKET/helloworld-v2.zip"
-  files_count = null
-}
-handlers_v2 = [{
-  url_regex                   = "/.*",
-  security_level              = null,
-  login                       = null,
-  auth_fail_action            = null,
-  redirect_http_response_code = null,
-  script = {
-    script_path = "main.app"
-  }
-  static_files = null
-}]
-instances_v2 = 3
-# ===== /Variables for App Engine Service V2 ===== #
-
-
-# ===== Variables for Split Traffic ===== #
-shard_by = "RANDOM"
-allocations = {
-  "default-v1" = 0.5
-  "default-v2" = 0.5
-}
-migrate_traffic = false
-# ===== /Variables for Split Traffic ===== #
-
-# ===== Generic Variables ===== #
-service = "default"

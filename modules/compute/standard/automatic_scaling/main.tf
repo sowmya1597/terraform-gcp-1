@@ -1,10 +1,9 @@
-resource "google_app_engine_standard_app_version" "webserver" {
-  project                   = var.project
+resource "google_app_engine_standard_app_version" "appengine_standard" {
   version_id                = var.service_version
   service                   = var.service
   runtime                   = var.runtime
   threadsafe                = var.threadsafe
-  runtime_api_version       = var.runtime_api_version
+  runtime_api_version       = var.api_version
   env_variables             = var.env_variables
   noop_on_destroy           = var.noop_on_destroy
   delete_service_on_destroy = var.delete_service_on_destroy

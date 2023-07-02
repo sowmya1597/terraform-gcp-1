@@ -32,12 +32,12 @@ variable "runtime" {
 }
 
 variable "threadsafe" {
-  description = "(Optional; Default True) Whether the application should use concurrent requests or not. Only appliable for python27 and java8 runtimes."
+  description = "(Optional) Whether the application should use concurrent requests or not. Only appliable for python27 and java8 runtimes."
   type        = bool
-  default     = true
+  default     = null
 }
 
-variable "runtime_api_version" {
+variable "api_version" {
   description = "(Optional)The version of the API in the given runtime environment that is used by your app. The field is deprecated for newer App Engine runtimes."
   type        = number
   default     = null
@@ -64,7 +64,7 @@ variable "delete_service_on_destroy" {
 variable "instance_class" {
   description = "(Optional; Default: F1) Instance class that is used to run this version. Valid values are AutomaticScaling: F1, F2, F4, F4_1G BasicScaling or ManualScaling: B1, B2, B4, B4_1G, B8 Defaults to F1 for AutomaticScaling and B2 for ManualScaling and BasicScaling. If no scaling is specified, AutomaticScaling is chosen."
   type        = string
-  default     = "F1"
+  default     = "B1"
 
   validation {
     condition     = contains(["B1", "B2", "B4", "B4_1G", "B8", "F1", "F2", "F4", "F4_1G"], var.instance_class)
@@ -160,62 +160,17 @@ variable "entrypoint" {
   default = null
 }
 
-variable "automatic_scaling" {
-  description = "(Optional) Automatic scaling is based on request rate, response latencies, and other application metrics."
-  type = object({
-    max_concurrent_requests = number,
-    max_idle_instances      = number,
-    max_pending_latency     = string,
-    min_idle_instances      = number,
-    min_pending_latency     = string
-    standard_scheduler_settings = object({
-      target_cpu_utilization        = number,
-      target_throughput_utilization = number,
-      min_instances                 = number,
-      max_instances                 = number
-    })
-  })
-  default = {
-    max_concurrent_requests = 10,
-    max_idle_instances      = 10,
-    max_pending_latency     = "30ms",
-    min_idle_instances      = 3,
-    min_pending_latency     = "0s",
-    standard_scheduler_settings = {
-      target_cpu_utilization        = 0.6,
-      target_throughput_utilization = 0.6,
-      min_instances                 = 0,
-      max_instances                 = 1
-    }
-  }
+variable "idle_timeout" {
+  description = "(Optional; Default: 900s) Duration of time after the last request that an instance must wait before the instance is shut down. A duration in seconds with up to nine fractional digits, terminated by 's'. Example: `3.5s`. Defaults to 900s."
+  default     = "900s"
+}
 
+variable "max_instances" {
+  description = "(Required; Default: 1) Maximum number of instances to create for this version. Must be in the range [1.0, 200.0]."
+  default     = 1
   validation {
-    condition     = ! contains([for max_concurrent_requests in var.automatic_scaling[*].max_concurrent_requests : (max_concurrent_requests >= 10 && max_concurrent_requests <= 80)], false)
-    error_message = "The value of max_concurrent_requests must fall within range [10, 80]."
-  }
-  validation {
-    condition     = ! contains([for max_idle_instances in var.automatic_scaling[*].max_idle_instances : (max_idle_instances >= 1 && max_idle_instances <= 1000)], false)
-    error_message = "The value of max_idle_instances needs to fall within range [1, 1000]."
-  }
-  validation {
-    condition     = ! contains([for min_idle_instances in var.automatic_scaling[*].min_idle_instances : (min_idle_instances >= 1 && min_idle_instances <= 1000)], false)
-    error_message = "The value of min_idle_instances needs to be fall within range [1, 1000]."
-  }
-  validation {
-    condition     = ! contains([for standard_scheduler_settings in var.automatic_scaling[*].standard_scheduler_settings : contains([for target_cpu_utilization in standard_scheduler_settings[*].target_cpu_utilization : (target_cpu_utilization >= 0.5 && target_cpu_utilization <= 0.95)], false)], true)
-    error_message = "The target_cpu_utilization value must fall within range [0.5, 0.95]."
-  }
-  validation {
-    condition     = ! contains([for standard_scheduler_settings in var.automatic_scaling[*].standard_scheduler_settings : contains([for target_throughput_utilization in standard_scheduler_settings[*].target_throughput_utilization : (target_throughput_utilization >= 0.5 && target_throughput_utilization <= 0.95)], false)], true)
-    error_message = "The target_throughput_utilization value must fall within range [0.5, 0.95]."
-  }
-  validation {
-    condition     = ! contains([for standard_scheduler_settings in var.automatic_scaling[*].standard_scheduler_settings : contains([for min_instances in standard_scheduler_settings[*].target_throughput_utilization : (min_instances >= 0 && min_instances <= 1000)], false)], true)
-    error_message = "The min_instances value must fall within range [0,1000]."
-  }
-  validation {
-    condition     = ! contains([for standard_scheduler_settings in var.automatic_scaling[*].standard_scheduler_settings : contains([for max_instances in standard_scheduler_settings[*].target_throughput_utilization : (max_instances >= 0 && max_instances <= 1000)], false)], true)
-    error_message = "The max_instances value must fall within range [0,2147483647]."
+    condition     = var.max_instances > 0
+    error_message = "You must allocate at least 1 instance."
   }
 }
 
