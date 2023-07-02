@@ -19,6 +19,7 @@ module "appengine_app" {
 
 module "app_service" {
   source            = "../modules/appservice"
+  project           = var.project
   service_version   = var.app_service_version
   service           = var.app_service
   runtime           = var.app_service_runtime
@@ -31,6 +32,7 @@ module "app_service" {
 
 module "web_service" {
   source            = "../modules/webservice"
+  project           = var.project
   service_version    = var.web_service_version
   service           = var.web_service
   runtime           = var.web_service_runtime

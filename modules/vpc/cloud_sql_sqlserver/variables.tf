@@ -12,9 +12,9 @@ variable "name" {
 }
 
 variable "database_version" {
-  description = "The MySQL version to use. Supported values are: MYSQL_5_6, MYSQL_5_7 and MYSQL_8_0. It defaults to MYSQL_5_6"
+  description = "The sqlserver version to use. Supported values are: SQLSERVER_2019_STANDARD"
   type        = string
-  default     = "MYSQL_5_6"
+  default     = "SQLSERVER_2019_STANDARD"
 }
 
 variable "cloud_sql_region" {
@@ -99,7 +99,7 @@ variable "vpc_network_id" {
 }
 
 variable "require_ssl" {
-  description = "Set to true if mysqld should default to REQUIRE X509 for users connnecting over IP"
+  description = "Set to true if SQLSERVER should default to REQUIRE X509 for users connnecting over IP"
   type        = bool
   default     = null
 }
