@@ -72,20 +72,6 @@ db_service_handlers = [{
 db_service_instances = 3
 # ===== /Variables for App Engine DBService ===== #
 
-# Variables for Automatic Scaling module
-automatic_scaling = {
-  max_concurrent_requests = 10,
-  max_idle_instances      = 10,
-  max_pending_latency     = "1s",
-  min_idle_instances      = 3,
-  min_pending_latency     = "0.01s",
-  standard_scheduler_settings = {
-    target_cpu_utilization        = 0.6,
-    target_throughput_utilization = 0.6,
-    min_instances                 = 1,
-    max_instances                 = 3
-  }
-}
 
 
 ### Variables definition for VPC network
